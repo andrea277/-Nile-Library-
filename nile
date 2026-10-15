@@ -1,0 +1,147 @@
+CREATE TABLE categories (
+    category_id NUMBER,
+    category_name VARCHAR2(100) NOT NULL
+);
+CREATE TABLE members (
+    member_id NUMBER,
+    full_name VARCHAR2(100) NOT NULL,
+    email VARCHAR2(100),
+    phone VARCHAR2(50),
+    city VARCHAR2(50),
+    joined_on DATE DEFAULT SYSDATE,
+    points NUMBER DEFAULT 0
+);
+CREATE TABLE books (
+    book_id NUMBER,
+    title VARCHAR2(200) NOT NULL,
+    author VARCHAR2(100),
+    category_id NUMBER,
+    price NUMBER(8,2),
+    copies_available NUMBER,
+    published_year NUMBER
+);
+CREATE TABLE loans (
+    loan_id NUMBER,
+    member_id NUMBER,
+    book_id NUMBER,
+    loaned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR2(50) DEFAULT 'ACTIVE'
+);
+INSERT INTO categories VALUES (1, 'Technology');
+INSERT INTO categories VALUES (2, 'Fiction');
+INSERT INTO categories VALUES (3, 'History');
+
+INSERT INTO members VALUES (1, 'Ahmed Hassan', 'ahmed.hassan@mail.com', '01012345678', 'Cairo', ADD_MONTHS(SYSDATE, -14), 250);
+INSERT INTO members VALUES (2, 'Mona Ali', 'mona.ali@mail.com', '01123456789', 'Cairo', ADD_MONTHS(SYSDATE, -9), 120);
+INSERT INTO members VALUES (3, 'Youssef Samir', 'youssef@gmail.com', '01234567890', 'Giza', ADD_MONTHS(SYSDATE, -3), 0);
+INSERT INTO members VALUES (4, 'Amira Tarek', 'amira@mail.com', '01098765432', 'Alexandria', ADD_MONTHS(SYSDATE, -20), 80);
+INSERT INTO members VALUES (5, 'Karim Nabil', 'karim@gmail.com', NULL, 'Cairo', ADD_MONTHS(SYSDATE, -7), 150);
+INSERT INTO members VALUES (6, 'Sara Mahmoud', 'sara@mail.com', '01155551234', 'Giza', ADD_MONTHS(SYSDATE, -2), 400);
+INSERT INTO members VALUES (7, 'Omar Fathy', 'omar@yahoo.com', '01277778888', 'Cairo', ADD_MONTHS(SYSDATE, -12), 95);
+INSERT INTO members VALUES (8, 'Laila Adel', 'laila@mail.com', '01066669999', 'Mansoura', ADD_MONTHS(SYSDATE, -1), 30);
+
+INSERT INTO books VALUES (1, 'Algorithms Made Simple', 'Omar Salem', 1, 450.00, 5, 2020);
+INSERT INTO books VALUES (2, 'Ancient Egypt', 'Hana Mostafa', 3, 320.00, 3, 2018);
+INSERT INTO books VALUES (3, 'Pocket SQL Guide', 'Nadia Fouad', 1, 85.00, 12, 2022);
+INSERT INTO books VALUES (4, 'Spring Boot in Action', 'Tarek Hegazy', 1, 500.00, 4, 2023);
+INSERT INTO books VALUES (5, 'Complete Oracle Reference', 'Mina Gerges', 1, 1250.00, 2, 2021);
+INSERT INTO books VALUES (6, 'The Desert Night', 'Laila Hamdy', 2, 150.00, 0, 2015);
+INSERT INTO books VALUES (7, 'Egyptian History', 'Hana Mostafa', 3, 280.00, 6, 2019);
+INSERT INTO books VALUES (8, 'City of Lights', NULL, 2, 199.99, 7, 2017);
+INSERT INTO books VALUES (9, 'Clean Code Basics', 'Youssef Anwar', 1, 600.00, 8, 2020);
+INSERT INTO books VALUES (10, 'The Last Pharaoh', 'Amr Zaki', 3, 100.00, 1, 2016);
+
+INSERT INTO loans (loan_id, member_id, book_id) VALUES (1, 1, 1);
+INSERT INTO loans (loan_id, member_id, book_id) VALUES (2, 2, 3);
+INSERT INTO loans (loan_id, member_id, book_id) VALUES (3, 3, 2);
+INSERT INTO loans (loan_id, member_id, book_id) VALUES (4, 1, 4);
+INSERT INTO loans (loan_id, member_id, book_id) VALUES (5, 6, 5);
+INSERT INTO loans (loan_id, member_id, book_id) VALUES (6, 7, 9);
+ALTER TABLE books ADD (isbn VARCHAR2(50));
+
+ALTER TABLE loans ADD (returned_at TIMESTAMP);
+UPDATE loans
+SET status = 'RETURNED',
+    returned_at = CURRENT_TIMESTAMP
+WHERE loan_id = 2;
+
+UPDATE books
+SET price = price * 1.10
+WHERE category_id = 2;
+
+COMMIT;
+DELETE FROM books;
+ROLLBACK;
+DELETE FROM members
+WHERE member_id = 4;
+
+RENAME loans TO book_loans;
+
+COMMIT;
+
+SELECT *
+FROM members;
+SELECT title AS "Book Title",
+       author AS "Author",
+       price AS "Price"
+FROM books;
+
+SELECT DISTINCT city
+FROM members;
+SELECT title,
+       ROUND(price * 1.14, 2) AS price_with_vat
+FROM books;
+SELECT *
+FROM members
+WHERE city = 'Cairo';
+
+SELECT *
+FROM books
+WHERE price > 300
+  AND copies_available > 0;
+SELECT *
+FROM books
+WHERE price BETWEEN 100 AND 500;
+SELECT *
+FROM members
+WHERE city IN ('Cairo', 'Giza', 'Alexandria');
+SELECT *
+FROM books
+WHERE title LIKE 'A%'
+   OR title LIKE '%y';
+SELECT *
+FROM members
+WHERE phone IS NULL;
+SELECT *
+FROM books
+ORDER BY price DESC, title ASC;
+SELECT full_name AS "Member Name",
+       phone AS "Phone Number",
+       points AS "Total Points"
+FROM members
+WHERE city IN ('Cairo', 'Giza')
+  AND phone IS NOT NULL
+ORDER BY points DESC;
+SELECT full_name || ' ' || city AS member_info
+FROM members;
+SELECT UPPER(full_name) AS member_name,
+       LENGTH(full_name) AS name_length
+FROM members;
+SELECT SUBSTR(email, 1, INSTR(email, '@') - 1) AS email_username
+FROM members
+WHERE email IS NOT NULL;
+SELECT *
+FROM members
+WHERE joined_on < ADD_MONTHS(SYSDATE, -6)
+  AND points < 200;
+SELECT *
+FROM members
+WHERE city IN ('Cairo', 'Giza')
+  AND points >= 100;
+SELECT *
+FROM books
+WHERE price BETWEEN 100 AND 500;
+SELECT title,
+       ROUND(price * 1.14, 2) AS price_vat
+FROM books
+WHERE price * 1.14 > 500;
